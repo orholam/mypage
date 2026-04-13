@@ -1,10 +1,24 @@
 import { cn } from "@/lib/utils";
 
-export function LaunchLogo({ className }: { className?: string }) {
+export function LaunchLogo({
+  className,
+  variant = "default",
+}: {
+  className?: string;
+  /** Wordmark + mark for `bg-primary` panels (login/signup hero column) */
+  variant?: "default" | "onPrimary";
+}) {
+  const onPrimary = variant === "onPrimary";
   return (
-    <span className={cn("font-display inline-flex items-center gap-2 text-lg font-extrabold tracking-tight text-foreground", className)}>
+    <span
+      className={cn(
+        "font-display inline-flex items-center gap-2 text-lg font-extrabold tracking-tight",
+        onPrimary ? "text-primary-foreground" : "text-foreground",
+        className
+      )}
+    >
       <svg
-        className="text-primary size-8 shrink-0"
+        className={cn("size-8 shrink-0", onPrimary ? "text-primary-foreground" : "text-primary")}
         viewBox="0 0 32 32"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

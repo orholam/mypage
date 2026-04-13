@@ -180,7 +180,7 @@
     background-image: var(--noise-coarse);
     background-repeat: repeat;
     background-size: 64px 64px;
-    opacity: 0.58;
+    opacity: 0.68;
     mix-blend-mode: multiply;
   }
 
@@ -192,7 +192,7 @@
     background-image: var(--noise-fine);
     background-repeat: repeat;
     background-size: 128px 128px;
-    opacity: 0.48;
+    opacity: 0.55;
     mix-blend-mode: overlay;
   }
 

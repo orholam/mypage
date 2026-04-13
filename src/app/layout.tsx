@@ -24,9 +24,9 @@ const fontMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LaunchPage — Waitlist demo",
+  title: "LaunchPage — Waitlists & simple pages",
   description:
-    "Blue, orange, and enough grain to feel human. A waitlist you can ship without filing a JIRA ticket.",
+    "Create a landing page, collect signups, and manage email drafts from one dashboard. Start free, deploy on your own stack when you’re ready.",
 };
 
 export default function RootLayout({

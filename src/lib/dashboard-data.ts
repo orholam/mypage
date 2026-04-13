@@ -1,3 +1,4 @@
+import { authLog } from "@/lib/auth-log";
 import type { EmailTemplateRow, WaitlistPage, Workspace } from "@/lib/database.types";
 import { createClient } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
@@ -24,8 +25,12 @@ export const getDashboardShellData = cache(async (): Promise<DashboardShellData 
   const supabase = await createClient();
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
   if (!user) {
+    authLog("server", "getDashboardShellData: no user (layout will redirect to /login)", {
+      getUserError: userError?.message ?? null,
+    });
     return null;
   }
 

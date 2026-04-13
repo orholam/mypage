@@ -15,45 +15,44 @@ import Link from "next/link";
 const features = [
   {
     icon: LayoutTemplate,
-    title: "Templates that don’t yawn",
+    title: "Templates you can make yours",
     description:
-      "Pick a vibe—quiet, loud, or weird—then change five words and pretend you designed it from scratch. We won’t tell.",
+      "Start from a layout you like, then edit headline, subtext, and call-to-action until it sounds like you.",
   },
   {
     icon: Mail,
-    title: "Emails you can preview sober",
+    title: "Email drafts you can sanity-check",
     description:
-      "Welcome + launch drafts with a live peek. No more “hope the merge tags didn’t eat a bracket” energy.",
+      "Welcome and launch emails with a readable preview before you send anything to real subscribers.",
   },
   {
     icon: BarChart3,
-    title: "Numbers without the spreadsheet smell",
-    description:
-      "Signups and plan headroom in one glance. For when you’re proud but also slightly nervous.",
+    title: "Signups at a glance",
+    description: "See how many people joined and how you’re doing against your plan limits—no spreadsheet required.",
   },
   {
     icon: Share2,
-    title: "Links you’re not ashamed of",
-    description: "Clean URLs for bios, sidebars, and that one Discord where people actually click things.",
+    title: "A link you’re happy to share",
+    description: "A clean public page and URL you can drop in a bio, newsletter, or social profile.",
   },
 ];
 
 const plans = [
   {
-    name: "Mess around tier",
+    name: "Starter",
     price: "Free",
-    description: "Local Supabase, full UI, zero guilt. Like a playground with fewer wood chips.",
-    highlights: ["All templates (yes, even the loud one)", "Editor + dashboard", "Learning-friendly"],
-    cta: "Ok let’s go",
+    description: "Run the app locally with the full dashboard and editor. No credit card, no time limit for tinkering.",
+    highlights: ["All templates", "Page editor & preview", "Submissions & basic stats"],
+    cta: "Create an account",
     href: "/signup",
     featured: false,
   },
   {
-    name: "Real life tier",
-    price: "Your stack",
-    description: "Deploy when the caffeine says yes. Bring your host, DB, and mild delusion of grandeur.",
-    highlights: ["Your DB, your drama", "Domains when you’re fancy", "Data stays yours"],
-    cta: "Make an account",
+    name: "Your deployment",
+    price: "Custom",
+    description: "When you’re ready to go live, connect your own hosting and database. Your infrastructure, your rules.",
+    highlights: ["Use your own database", "Custom domain when you set it up", "You keep your data"],
+    cta: "Get started",
     href: "/signup",
     featured: true,
   },
@@ -61,54 +60,35 @@ const plans = [
 
 export default function Home() {
   return (
-    <div className="relative z-10 min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-30 border-b border-border bg-card">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6 md:px-10">
-          <LaunchLogo />
-          <nav className="font-body-thin hidden items-center gap-10 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="transition-colors hover:text-foreground">
-              Features
-            </a>
-            <a href="#pricing" className="transition-colors hover:text-foreground">
-              Pricing
-            </a>
-            <a href="#about" className="transition-colors hover:text-foreground">
-              About
-            </a>
-          </nav>
-          <div className="flex items-center gap-3 md:gap-4">
-            <Link
-              href="/login"
-              className="font-body-thin text-sm text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Log in
-            </Link>
-            <Link href="/signup" className={cn(buttonVariants({ size: "sm" }), "shadow-sm")}>
-              Get started
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="relative z-10 min-h-screen text-foreground">
+      <Link
+        href="/"
+        className="absolute left-6 top-6 z-50 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:left-10 md:top-8"
+        aria-label="LaunchPage home"
+      >
+        <LaunchLogo />
+      </Link>
 
       <main>
-        <section className="border-b border-border">
-          <div className="mx-auto max-w-6xl px-6 py-24 md:px-12 md:py-32 lg:py-40">
+        {/* Full viewport height so the rule above Features stays below the fold */}
+        <section className="flex min-h-dvh flex-col border-b border-border">
+          <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-6 pb-28 pt-36 md:px-12 md:pb-36 md:pt-44 lg:pb-40 lg:pt-52">
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-primary mb-8 inline-flex items-center gap-2 rounded-full border-2 border-primary bg-card px-5 py-2.5 text-sm font-semibold shadow-sm">
                 <Sparkles className="size-4" aria-hidden />
-                Another waitlist app (orange included on purpose)
+                Waitlists &amp; simple pages
               </p>
               <h1 className="font-display text-4xl leading-[1.08] sm:text-5xl md:text-6xl md:leading-[1.05]">
-                <span className="text-foreground">Build the thing,</span>
+                <span className="text-foreground">Launch a page that</span>
                 <br />
-                <span className="text-primary">not the signup plumbing.</span>
+                <span className="text-primary">collects signups for you.</span>
               </h1>
-              <p className="font-mono-technical text-warm mt-6 text-xs font-medium uppercase tracking-[0.2em]">
-                Blue type · orange accents · chunky fields
+              <p className="font-mono-technical text-muted-foreground mt-6 text-xs font-medium uppercase tracking-[0.2em]">
+                Edit · preview · share
               </p>
               <p className="font-body-thin text-muted-foreground mx-auto mt-8 max-w-xl text-lg leading-relaxed text-pretty md:text-xl">
-                One noisy gradient behind everything (look closely). Solid cards up front. You get a page that collects
-                emails; we get to shut up about “synergy.”
+                Pick a template, write your copy, and publish a focused landing page. Manage submissions and email
+                drafts from one dashboard—so you can spend time on the product, not wiring forms.
               </p>
               <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-5">
                 <Link
@@ -125,14 +105,20 @@ export default function Home() {
                     "min-w-[220px] font-semibold"
                   )}
                 >
-                  What even is this
+                  See what&apos;s included
                 </a>
               </div>
-              <ul className="font-body-thin text-muted-foreground mx-auto mt-16 flex max-w-2xl flex-col gap-3 text-left text-sm sm:mt-20 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-3">
+              <p className="text-muted-foreground mt-6 text-center text-sm">
+                Already registered?{" "}
+                <Link href="/login" className="font-medium text-foreground underline-offset-4 hover:underline">
+                  Log in
+                </Link>
+              </p>
+              <ul className="font-body-thin text-muted-foreground mx-auto mt-14 flex max-w-2xl flex-col gap-3 text-left text-sm sm:mt-16 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-10 sm:gap-y-3">
                 {[
-                  "Pricing that doesn’t hide in fine print",
-                  "Supabase when you’re ready (no arm-twisting)",
-                  "Templates + previews + share links — the trifecta",
+                  "Straightforward pricing",
+                  "Bring your own hosting when you outgrow local",
+                  "Templates, live preview, and shareable links",
                 ].map((t) => (
                   <li key={t} className="flex items-center gap-3">
                     <span className="bg-secondary text-primary flex size-7 shrink-0 items-center justify-center rounded-full border-2 border-warm">
@@ -150,11 +136,11 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto max-w-2xl text-center">
               <p className="font-mono-technical text-muted-foreground mb-3 text-xs font-medium uppercase tracking-widest">
-                The pile
+                Features
               </p>
-              <h2 className="text-3xl md:text-4xl">Stuff in one place</h2>
+              <h2 className="text-3xl md:text-4xl">Everything in one dashboard</h2>
               <p className="font-body-thin text-muted-foreground mt-4 text-lg leading-relaxed">
-                Editor, mail, signups. Fewer tabs than your average Tuesday afternoon.
+                Edit your public page, tweak emails, and watch signups—without juggling a pile of tools.
               </p>
             </div>
             <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4 lg:gap-10">
@@ -178,11 +164,11 @@ export default function Home() {
           <div className="mx-auto max-w-6xl px-6 py-20 md:px-12 md:py-28">
             <div className="mx-auto max-w-2xl text-center">
               <p className="font-mono-technical text-muted-foreground mb-3 text-xs font-medium uppercase tracking-widest">
-                Pick one
+                Pricing
               </p>
-              <h2 className="text-3xl md:text-4xl">Two doors</h2>
+              <h2 className="text-3xl md:text-4xl">Start free, deploy when you’re ready</h2>
               <p className="font-body-thin text-muted-foreground mt-4 text-lg leading-relaxed">
-                Demo today, serious tomorrow. Or demo forever. We’re not your landlord.
+                Use the full experience locally at no cost. When you want a live site, plug in your own stack.
               </p>
             </div>
             <div className="mx-auto mt-16 grid max-w-4xl gap-8 md:mt-20 md:grid-cols-2 md:gap-10">
@@ -198,7 +184,7 @@ export default function Home() {
                 >
                   {plan.featured ? (
                     <span className="bg-warm text-warm-foreground absolute -top-3 left-8 rounded-full px-3 py-1 text-xs font-bold">
-                      Orange team pick
+                      For production
                     </span>
                   ) : null}
                   <h3 className="font-display text-xl font-bold text-foreground">{plan.name}</h3>
@@ -233,13 +219,10 @@ export default function Home() {
 
         <section id="about" className="border-t border-border bg-muted">
           <div className="mx-auto max-w-3xl px-6 py-20 text-center md:px-12 md:py-28">
-            <h2 className="text-3xl md:text-4xl">Weekend-project certified</h2>
+            <h2 className="text-3xl md:text-4xl">Built for makers shipping a first version</h2>
             <p className="font-body-thin text-muted-foreground mt-6 text-lg leading-relaxed">
-              LaunchPage is a sandbox for poking auth, workspaces, a public page, and email previews before you mortgage
-              your attention span to billing APIs.
-            </p>
-            <p className="font-mono-technical text-muted-foreground mt-4 text-sm">
-              /* Bricolage for yelling · Outfit for explaining · Plex Mono for the fine print */
+              LaunchPage gives you accounts, workspaces, a public waitlist or simple page, and email templates—so you can
+              validate an idea or onboard early users without assembling a dozen services first.
             </p>
           </div>
         </section>
@@ -249,7 +232,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col gap-8 px-6 py-14 md:flex-row md:items-center md:justify-between md:px-12 md:py-16">
           <LaunchLogo className="text-sm" />
           <p className="font-body-thin text-muted-foreground max-w-md text-sm leading-relaxed">
-            © {new Date().getFullYear()} LaunchPage — loud grain, quiet layout, slightly unserious footers.
+            © {new Date().getFullYear()} LaunchPage. All rights reserved.
           </p>
         </div>
       </footer>

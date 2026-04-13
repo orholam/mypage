@@ -1,3 +1,4 @@
+import { authLog, authWarn } from "@/lib/auth-log";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -7,6 +8,7 @@ export async function updateSession(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) {
+    authWarn("middleware", "missing NEXT_PUBLIC_SUPABASE_URL or ANON_KEY — skipping session refresh");
     return supabaseResponse;
   }
 
@@ -29,13 +31,33 @@ export async function updateSession(request: NextRequest) {
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser();
 
-  const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const pathname = request.nextUrl.pathname;
+  const isDashboard = pathname.startsWith("/dashboard");
+  const supabaseCookieNames = request.cookies
+    .getAll()
+    .map((c) => c.name)
+    .filter((n) => n.includes("supabase") || n.includes("sb-"));
+
+  authLog("middleware", "getUser", {
+    pathname,
+    hasUser: Boolean(user),
+    userId: user?.id ?? null,
+    getUserError: userError?.message ?? null,
+    supabaseCookieCount: supabaseCookieNames.length,
+    supabaseCookieNames,
+  });
+
   if (isDashboard && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", request.nextUrl.pathname);
+    authLog("middleware", "redirect unauthenticated dashboard → /login", {
+      from: pathname,
+      nextParam: request.nextUrl.pathname,
+    });
     return NextResponse.redirect(redirectUrl);
   }
 

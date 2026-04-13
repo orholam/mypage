@@ -1,5 +1,6 @@
 "use client";
 
+import { authLog, authWarn, redactEmail } from "@/lib/auth-log";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,18 +22,67 @@ export function LoginForm() {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const supabase = createClient();
-    const { error: signError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    authLog("client", "login submit", {
+      next,
+      email: redactEmail(email.trim()),
     });
-    setLoading(false);
-    if (signError) {
-      setError(signError.message);
-      return;
+    try {
+      const supabase = createClient();
+      const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      authLog("client", "supabase client env", {
+        hasUrl: Boolean(url),
+        urlHost: url ? new URL(url).host : null,
+      });
+
+      const { data: signData, error: signError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+      if (signError) {
+        authLog("client", "signInWithPassword error", {
+          message: signError.message,
+          name: signError.name,
+          status: signError.status,
+        });
+        setError(signError.message);
+        return;
+      }
+
+      authLog("client", "signInWithPassword ok", {
+        hasSession: Boolean(signData.session),
+        hasUser: Boolean(signData.user),
+        userId: signData.user?.id ?? null,
+        expiresAt: signData.session?.expires_at ?? null,
+      });
+
+      const { data: sessionCheck, error: sessionError } =
+        await supabase.auth.getSession();
+      if (sessionError) {
+        authWarn("client", "getSession after signIn failed", {
+          message: sessionError.message,
+        });
+      } else {
+        authLog("client", "getSession after signIn", {
+          hasSession: Boolean(sessionCheck.session),
+          userId: sessionCheck.session?.user?.id ?? null,
+        });
+      }
+
+      authLog("client", "navigating after login", { next });
+      router.replace(next);
+      router.refresh();
+      authLog("client", "router.replace + refresh invoked");
+    } catch (err) {
+      authWarn("client", "login unexpected error", {
+        name: err instanceof Error ? err.name : typeof err,
+        message: err instanceof Error ? err.message : String(err),
+      });
+      setError("Something went wrong. Check the console for [auth] logs.");
+    } finally {
+      setLoading(false);
     }
-    router.replace(next);
-    router.refresh();
   }
 
   return (
