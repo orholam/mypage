@@ -15,7 +15,7 @@ export default async function DashboardHomePage() {
   const liveHref = ws?.subdomain ? publicSiteAbsoluteUrl(ws.subdomain) ?? undefined : undefined;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-background">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
       <header className="flex h-14 shrink-0 items-center border-b border-border bg-card px-3 sm:px-5">
         <h1 className="font-display text-lg font-extrabold tracking-tight">Your dashboard</h1>
       </header>

@@ -22,6 +22,8 @@ export type WaitlistPage = {
   subheadline: string;
   cta_label: string;
   cta_url: string;
+  /** JSON: profile links, waitlist pitch fields — see `parsePageExtras` in `@/lib/page-extras`. */
+  extras?: unknown;
   published: boolean;
   created_at: string;
   updated_at: string;
@@ -40,7 +42,7 @@ export type EmailTemplateRow = {
 
 export type PublicPageRow = Pick<
   WaitlistPage,
-  "id" | "slug" | "headline" | "subheadline" | "cta_label" | "template_id" | "cta_url"
+  "id" | "slug" | "headline" | "subheadline" | "cta_label" | "template_id" | "cta_url" | "extras"
 > & {
   /** From RPC after `003_site_kind.sql`. */
   site_kind?: SiteKind;

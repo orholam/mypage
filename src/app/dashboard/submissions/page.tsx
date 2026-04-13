@@ -26,12 +26,12 @@ export default async function SubmissionsPage() {
       : { data: [] as { id: string; email: string; created_at: string; page_id: string }[] };
 
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-background">
-      <header className="border-b border-border bg-card px-6 py-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      <header className="shrink-0 border-b border-border bg-card px-6 py-5">
         <h1 className="font-display text-xl font-extrabold tracking-tight">Submissions</h1>
         <p className="text-muted-foreground mt-1 text-sm">Emails captured on your public waitlist page.</p>
       </header>
-      <div className="overflow-x-auto p-6">
+      <div className="min-h-0 flex-1 overflow-auto p-6">
         <table className="w-full min-w-[480px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border text-left">

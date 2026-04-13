@@ -98,7 +98,7 @@ export function DashboardSidebar({ shell }: { shell: DashboardShellData }) {
   }
 
   return (
-    <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground flex w-[18rem] shrink-0 flex-col border-r shadow-sm">
+    <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground flex h-full min-h-0 w-[18rem] shrink-0 flex-col overflow-hidden border-r shadow-sm">
       <div className="flex h-14 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
         <Link
           href="/dashboard"

@@ -1,7 +1,7 @@
 export default function AnalyticsPage() {
   return (
-    <div className="flex min-h-screen flex-1 flex-col bg-background">
-      <header className="border-b border-border bg-card px-6 py-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      <header className="shrink-0 border-b border-border bg-card px-6 py-5">
         <h1 className="font-display text-xl font-extrabold tracking-tight">Analytics</h1>
         <p className="text-muted-foreground mt-1 text-sm">Charts and funnels would live here in a full product.</p>
       </header>

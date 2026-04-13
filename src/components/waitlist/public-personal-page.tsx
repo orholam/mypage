@@ -3,34 +3,53 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PublicPageRow } from "@/lib/database.types";
+import { ProfileLinksStrip } from "@/components/waitlist/profile-links-strip";
+import { PublicPageShell } from "@/components/waitlist/public-page-ambient";
 import { normalizeOutboundHref } from "@/lib/href";
-import { waitlistTemplateCardClass } from "@/lib/waitlist-template";
+import { parsePageExtras } from "@/lib/page-extras";
+import { TemplatePageMark } from "@/components/waitlist/template-page-mark";
+import {
+  pageSurfaceClass,
+  personalCtaClass,
+  personalHeadingClass,
+  personalSubheadClass,
+  personalTopAccentClass,
+} from "@/lib/waitlist-template";
 import Link from "next/link";
 
 export function PublicPersonalPage({ page }: { page: PublicPageRow }) {
-  const card = waitlistTemplateCardClass(page.template_id);
+  const tid = page.template_id;
+  const card = pageSurfaceClass("personal", tid);
   const href = normalizeOutboundHref(page.cta_url ?? "");
   const showCta = Boolean(page.cta_label?.trim() && href);
+  const accent = personalTopAccentClass(tid);
+  const headingClass = personalHeadingClass(tid);
+  const subClass = personalSubheadClass(tid);
+  const ctaExtra = personalCtaClass(tid);
+  const profileLinks = parsePageExtras(page.extras).profileLinks ?? [];
+  const isMail = href.startsWith("mailto:");
 
   return (
-    <div className="bg-preview-canvas flex min-h-screen items-center justify-center p-6">
-      <div className={cn("w-full max-w-md rounded-2xl border p-10 shadow-sm", card)}>
-        <div className="mb-6 flex justify-center">
-          <div className="bg-primary text-primary-foreground flex size-12 items-center justify-center rounded-full text-xl font-medium">
-            ✦
-          </div>
+    <PublicPageShell kind="personal" templateId={tid}>
+      <div className={cn("w-full max-w-md p-8 sm:p-10", card)}>
+        <div className="mb-6 flex flex-col items-center gap-4">
+          {accent ? <div className={accent} aria-hidden /> : null}
+          <TemplatePageMark kind="personal" templateId={tid} />
         </div>
-        <h1 className="text-center text-3xl font-bold tracking-tight">{page.headline}</h1>
-        <p className="mt-3 text-center text-base leading-relaxed opacity-85">{page.subheadline}</p>
+        <h1 className={cn("text-center leading-tight", headingClass)}>{page.headline}</h1>
+        <p className={cn("mt-4 text-center", subClass)}>{page.subheadline}</p>
+
+        <ProfileLinksStrip links={profileLinks} templateId={tid} className="mt-8" />
+
         {showCta ? (
-          <div className="mt-8 flex justify-center">
+          <div className="mt-8 flex justify-center sm:mt-10">
             <Link
               href={href}
-              target="_blank"
-              rel="noopener noreferrer"
+              {...(isMail ? {} : { target: "_blank", rel: "noopener noreferrer" })}
               className={cn(
                 buttonVariants({ size: "lg" }),
-                "px-8 shadow-sm shadow-primary/15"
+                "min-w-[200px] px-8 shadow-sm",
+                ctaExtra
               )}
             >
               {page.cta_label}
@@ -38,6 +57,6 @@ export function PublicPersonalPage({ page }: { page: PublicPageRow }) {
           </div>
         ) : null}
       </div>
-    </div>
+    </PublicPageShell>
   );
 }
