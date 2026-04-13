@@ -23,6 +23,7 @@ import {
   publicSiteAbsoluteUrl,
   suggestSubdomainFromName,
 } from "@/lib/host";
+
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -237,10 +238,7 @@ export function DashboardSidebar({ shell }: { shell: DashboardShellData }) {
           </p>
         ) : null}
         <div className="mt-3 flex justify-end">
-          <SharePageButton
-            subdomain={shell.activeWorkspace?.subdomain}
-            slug={shell.waitlistPage?.slug}
-          />
+          <SharePageButton subdomain={shell.activeWorkspace?.subdomain} />
         </div>
       </div>
       <Separator className="bg-sidebar-border shrink-0" />
@@ -395,6 +393,7 @@ function CreateSiteDialog({
 }
 
 function SharePageButton({ subdomain, slug }: { subdomain?: string; slug?: string }) {
+  const url = subdomain ? publicSiteAbsoluteUrl(subdomain) : null;
   return (
     <Button
       type="button"
@@ -402,15 +401,11 @@ function SharePageButton({ subdomain, slug }: { subdomain?: string; slug?: strin
       size="icon"
       className="border-primary text-primary hover:bg-secondary shrink-0 border-2"
       onClick={() => {
-        if (!slug || typeof window === "undefined") return;
-        const url =
-          subdomain && getRootHost()
-            ? publicSiteAbsoluteUrl(subdomain, slug)
-            : `${window.location.origin}/w/${slug}`;
+        if (!url || typeof window === "undefined") return;
         void navigator.clipboard.writeText(url);
       }}
-      title={slug ? "Copy public site link" : "Save a page first"}
-      disabled={!slug}
+      title={url ? "Copy public site link" : (slug ? "Configure your domain to share" : "Save a page first")}
+      disabled={!url}
     >
       <Share2 className="size-4" />
     </Button>

@@ -81,15 +81,14 @@ export function publicSiteHostLabel(subdomain: string): string | null {
   return `${subdomain}.${root}`;
 }
 
-/** Public URL for a tenant site (subdomain). Falls back to path URL if root host is not configured. */
-export function publicSiteAbsoluteUrl(subdomain: string, pathSlugFallback: string): string {
+/**
+ * Absolute public URL for a tenant site.
+ * Returns `null` when no root host is configured (deploy hasn't set NEXT_PUBLIC_ROOT_HOST, or
+ * no subdomain was saved). Callers should disable or hide share/preview controls when null.
+ */
+export function publicSiteAbsoluteUrl(subdomain: string): string | null {
   const root = getRootHost();
-  if (!root || !subdomain) {
-    if (typeof window !== "undefined") {
-      return `${window.location.origin}/w/${pathSlugFallback}`;
-    }
-    return `/w/${pathSlugFallback}`;
-  }
+  if (!root || !subdomain) return null;
 
   if (typeof window !== "undefined") {
     if (root === "localhost") {
@@ -100,5 +99,7 @@ export function publicSiteAbsoluteUrl(subdomain: string, pathSlugFallback: strin
     return `https://${subdomain}.${root}/`;
   }
 
+  // Server-side path (RSC / Server Actions)
+  if (root === "localhost") return `http://${subdomain}.localhost:3000/`;
   return `https://${subdomain}.${root}/`;
 }

@@ -1,5 +1,5 @@
 import { getDashboardShellData } from "@/lib/dashboard-data";
-import { getRootHost, publicSiteHostLabel } from "@/lib/host";
+import { publicSiteHostLabel } from "@/lib/host";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,10 +11,9 @@ export default async function SubmissionsPage() {
   }
 
   const pageIds = shell.waitlistPages.map((p) => p.id);
-  const slugByPage = new Map(shell.waitlistPages.map((p) => [p.id, p.slug]));
   const sub = shell.activeWorkspace?.subdomain;
-  const root = getRootHost();
-  const publicHostLabel = sub && root ? publicSiteHostLabel(sub) : null;
+
+  const publicHostLabel = sub ? publicSiteHostLabel(sub) : null;
 
   const supabase = await createClient();
   const { data: rows } =
@@ -47,7 +46,7 @@ export default async function SubmissionsPage() {
                 <td className="p-3">{r.email}</td>
                 <td className="p-3 text-muted-foreground">
                   <code className="rounded bg-muted px-1 text-xs">
-                    {publicHostLabel ?? `/w/${slugByPage.get(r.page_id) ?? "—"}`}
+                    {publicHostLabel ?? "—"}
                   </code>
                 </td>
                 <td className="p-3 text-muted-foreground">

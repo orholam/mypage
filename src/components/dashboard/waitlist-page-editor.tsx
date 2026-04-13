@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import type { SiteKind, WaitlistPage } from "@/lib/database.types";
-import { getRootHost, publicSiteAbsoluteUrl } from "@/lib/host";
+import { publicSiteAbsoluteUrl } from "@/lib/host";
 import { normalizeOutboundHref } from "@/lib/href";
 import { waitlistTemplateCardClass } from "@/lib/waitlist-template";
 import { Save, Share2 } from "lucide-react";
@@ -36,7 +36,6 @@ export function WaitlistPageEditor({
   const [subheadline, setSubheadline] = useState(initialPage?.subheadline ?? "");
   const [ctaLabel, setCtaLabel] = useState(initialPage?.cta_label ?? "");
   const [ctaUrl, setCtaUrl] = useState(initialPage?.cta_url ?? "");
-  const slug = initialPage?.slug ?? "";
   const pageId = initialPage?.id ?? "";
   const [saving, setSaving] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
@@ -81,11 +80,12 @@ export function WaitlistPageEditor({
   }
 
   function share() {
-    if (!slug || typeof window === "undefined") return;
-    const url =
-      subdomain && getRootHost()
-        ? publicSiteAbsoluteUrl(subdomain, slug)
-        : `${window.location.origin}/w/${slug}`;
+    if (!subdomain || typeof window === "undefined") return;
+    const url = publicSiteAbsoluteUrl(subdomain);
+    if (!url) {
+      setHint("Set NEXT_PUBLIC_ROOT_HOST to enable sharing.");
+      return;
+    }
     void navigator.clipboard.writeText(url);
     setHint("Link copied.");
   }
@@ -111,7 +111,7 @@ export function WaitlistPageEditor({
             size="sm"
             className="gap-1 bg-emerald-600 text-white hover:bg-emerald-700"
             onClick={share}
-            disabled={!slug}
+            disabled={!subdomain}
           >
             <Share2 className="size-4" />
             Share Page

@@ -139,10 +139,6 @@ export function DashboardSiteSettings({ workspaceId, initialName, initialSubdoma
             {preview ? (
               <p className="font-mono-technical text-muted-foreground text-xs break-all">Public: {preview}</p>
             ) : null}
-            <p className="text-muted-foreground text-xs">
-              Path URL <code className="rounded bg-muted px-1 py-0.5">/w/{subDisplay}</code> stays in
-              sync with the subdomain.
-            </p>
             {subMessage ? (
               <p
                 className={

@@ -3,6 +3,7 @@ import { DashboardSiteSettings } from "@/components/dashboard/dashboard-site-set
 import { buttonVariants } from "@/components/ui/button";
 import { getDashboardShellData } from "@/lib/dashboard-data";
 import type { SiteKind } from "@/lib/database.types";
+import { publicSiteAbsoluteUrl } from "@/lib/host";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -10,9 +11,8 @@ export default async function DashboardHomePage() {
   const shell = await getDashboardShellData();
   const page = shell?.waitlistPage ?? null;
   const siteKind: SiteKind = shell?.activeWorkspace?.site_kind ?? "waitlist";
-  const slug = page?.slug;
   const ws = shell?.activeWorkspace;
-  const liveHref = slug ? `/w/${slug}` : undefined;
+  const liveHref = ws?.subdomain ? publicSiteAbsoluteUrl(ws.subdomain) ?? undefined : undefined;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-background">
