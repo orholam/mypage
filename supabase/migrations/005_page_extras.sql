@@ -42,7 +42,9 @@ $$;
 revoke all on function public.get_public_page(text) from public;
 grant execute on function public.get_public_page(text) to anon, authenticated;
 
-create or replace function public.get_public_site_by_subdomain(p_subdomain text)
+drop function if exists public.get_public_site_by_subdomain(text);
+
+create function public.get_public_site_by_subdomain(p_subdomain text)
 returns table (
   id uuid,
   slug text,

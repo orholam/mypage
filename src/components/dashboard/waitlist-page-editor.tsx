@@ -38,6 +38,7 @@ import {
   waitlistSubheadClass,
 } from "@/lib/waitlist-template";
 import { Loader2, Mail, Plus, Save, Share2, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 export function WaitlistPageEditor({
@@ -49,6 +50,7 @@ export function WaitlistPageEditor({
   siteKind: SiteKind;
   subdomain?: string;
 }) {
+  const router = useRouter();
   const templates = siteKind === "personal" ? PERSONAL_TEMPLATES : WAITLIST_TEMPLATES;
   const initialExtras = parsePageExtras(initialPage?.extras);
 
@@ -143,6 +145,7 @@ export function WaitlistPageEditor({
       return;
     }
     setHint("Saved.");
+    router.refresh();
   }
 
   function share() {

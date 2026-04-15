@@ -1,3 +1,4 @@
+import { getSiteUrl } from "@/lib/site-url";
 import type { NextRequest } from "next/server";
 
 /** Apex host only (no port), e.g. `example.com` or `localhost`. Used to detect `{sub}.ROOT`. */
@@ -102,4 +103,14 @@ export function publicSiteAbsoluteUrl(subdomain: string): string | null {
   // Server-side path (RSC / Server Actions)
   if (root === "localhost") return `http://${subdomain}.localhost:3000/`;
   return `https://${subdomain}.${root}/`;
+}
+
+/**
+ * Canonical URL for SEO when a tenant site is served on `{subdomain}.{NEXT_PUBLIC_ROOT_HOST}`.
+ * Falls back to `/s/{subdomain}` on the main app origin when no root host is configured.
+ */
+export function publicCanonicalUrlForSubdomain(subdomain: string): string {
+  const absolute = publicSiteAbsoluteUrl(subdomain);
+  if (absolute) return absolute.replace(/\/$/, "");
+  return new URL(`/s/${subdomain}`, getSiteUrl()).toString();
 }

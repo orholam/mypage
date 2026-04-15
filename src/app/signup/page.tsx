@@ -1,6 +1,14 @@
 import { SignupForm } from "@/components/auth/signup-form";
 import { LaunchLogo } from "@/components/brand/launch-logo";
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Create account",
+  description:
+    "Create a LaunchPage account to publish a waitlist or simple page, collect signups, and manage drafts from one dashboard.",
+  robots: { index: false, follow: false },
+};
 
 /** Corner placement aligned with marketing `page.tsx` — must sit outside `.organic-noise` so clicks aren’t swallowed. */
 const cornerLogoClass =

@@ -1,8 +1,42 @@
-import type { PublicPageRow } from "@/lib/database.types";
 import { PublicPersonalPage } from "@/components/waitlist/public-personal-page";
 import { PublicWaitlistForm } from "@/components/waitlist/public-waitlist-form";
-import { createClient } from "@/lib/supabase/server";
+import { publicCanonicalUrlForSubdomain } from "@/lib/host";
+import { getPublicPageBySubdomain } from "@/lib/public-page";
+import { seoDescription, seoTitle } from "@/lib/seo-text";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ subdomain: string }>;
+}): Promise<Metadata> {
+  const { subdomain } = await params;
+  const row = await getPublicPageBySubdomain(subdomain);
+  if (!row) return {};
+
+  const title = seoTitle(row.headline);
+  const description = seoDescription(row.subheadline);
+  const canonical = publicCanonicalUrlForSubdomain(subdomain);
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default async function PublicSiteBySubdomainPage({
   params,
@@ -10,16 +44,11 @@ export default async function PublicSiteBySubdomainPage({
   params: Promise<{ subdomain: string }>;
 }) {
   const { subdomain } = await params;
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_public_site_by_subdomain", {
-    p_subdomain: subdomain,
-  });
+  const row = await getPublicPageBySubdomain(subdomain);
 
-  if (error || !data?.length) {
+  if (!row) {
     notFound();
   }
-
-  const row = data[0] as PublicPageRow;
 
   if (row.site_kind === "personal") {
     return <PublicPersonalPage page={row} />;

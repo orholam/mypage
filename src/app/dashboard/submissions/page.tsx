@@ -1,8 +1,13 @@
 import { getDashboardShellData } from "@/lib/dashboard-data";
 import { publicSiteHostLabel } from "@/lib/host";
 import { createClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Submissions",
+};
 
 export default async function SubmissionsPage() {
   const shell = await getDashboardShellData();

@@ -1,6 +1,8 @@
 import { LaunchLogo } from "@/components/brand/launch-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site-url";
+import type { Metadata } from "next";
 import {
   ArrowRight,
   BarChart3,
@@ -37,6 +39,12 @@ const features = [
   },
 ];
 
+export const metadata: Metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
+
 const plans = [
   {
     name: "Starter",
@@ -58,9 +66,22 @@ const plans = [
   },
 ];
 
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "LaunchPage",
+  url: getSiteUrl().origin,
+  description:
+    "Create a landing page, collect signups, and manage email drafts from one dashboard. Start free, deploy on your own stack when you’re ready.",
+} as const;
+
 export default function Home() {
   return (
     <div className="relative z-10 min-h-screen text-foreground">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+      />
       <Link
         href="/"
         className="absolute left-6 top-6 z-50 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background md:left-10 md:top-8"

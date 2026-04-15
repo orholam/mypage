@@ -5,7 +5,12 @@ import { getDashboardShellData } from "@/lib/dashboard-data";
 import type { SiteKind } from "@/lib/database.types";
 import { publicSiteAbsoluteUrl } from "@/lib/host";
 import { cn } from "@/lib/utils";
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Dashboard",
+};
 
 export default async function DashboardHomePage() {
   const shell = await getDashboardShellData();

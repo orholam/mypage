@@ -1,7 +1,14 @@
 import { LoginForm } from "@/components/auth/login-form";
 import { LaunchLogo } from "@/components/brand/launch-logo";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "Log in",
+  description: "Sign in to your LaunchPage workspace to edit your page, review submissions, and manage email drafts.",
+  robots: { index: false, follow: false },
+};
 
 /** Corner placement aligned with marketing `page.tsx` — must sit outside `.organic-noise` so clicks aren’t swallowed. */
 const cornerLogoClass =

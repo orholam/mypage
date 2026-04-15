@@ -1,8 +1,42 @@
-import type { PublicPageRow } from "@/lib/database.types";
 import { PublicPersonalPage } from "@/components/waitlist/public-personal-page";
 import { PublicWaitlistForm } from "@/components/waitlist/public-waitlist-form";
-import { createClient } from "@/lib/supabase/server";
+import { getPublicPageBySlug } from "@/lib/public-page";
+import { seoDescription, seoTitle } from "@/lib/seo-text";
+import { getSiteUrl } from "@/lib/site-url";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const row = await getPublicPageBySlug(slug);
+  if (!row) return {};
+
+  const title = seoTitle(row.headline);
+  const description = seoDescription(row.subheadline);
+  const canonical = new URL(`/w/${slug}`, getSiteUrl()).toString();
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+    robots: { index: true, follow: true },
+  };
+}
 
 export default async function PublicWaitlistPage({
   params,
@@ -10,14 +44,11 @@ export default async function PublicWaitlistPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createClient();
-  const { data, error } = await supabase.rpc("get_public_page", { p_slug: slug });
+  const row = await getPublicPageBySlug(slug);
 
-  if (error || !data?.length) {
+  if (!row) {
     notFound();
   }
-
-  const row = data[0] as PublicPageRow;
 
   if (row.site_kind === "personal") {
     return <PublicPersonalPage page={row} />;

@@ -1,6 +1,11 @@
 import { EmailSettingsForm } from "@/components/dashboard/email-settings-form";
 import { getDashboardShellData, getEmailTemplatesForWorkspace } from "@/lib/dashboard-data";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+
+export const metadata: Metadata = {
+  title: "Email",
+};
 
 export default async function DashboardEmailPage() {
   const shell = await getDashboardShellData();
