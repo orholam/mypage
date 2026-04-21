@@ -1,5 +1,6 @@
 import type { SiteKind } from "@/lib/database.types";
 import { normalizeOutboundHref } from "@/lib/href";
+import { isPortfolioPathForPage, PORTFOLIO_MAX_IMAGES } from "@/lib/portfolio-storage";
 
 /** Stored under `waitlist_pages.extras` (JSON). */
 export type ProfileLinkProvider =
@@ -27,9 +28,15 @@ export type WaitlistPitchExtras = {
   statHint?: string;
 };
 
+/** Public URLs are derived at render time via `portfolioPublicUrl(path)`. */
+export type PortfolioImage = {
+  path: string;
+};
+
 export type PageExtras = {
   profileLinks?: ProfileLink[];
   waitlist?: WaitlistPitchExtras;
+  portfolioImages?: PortfolioImage[];
 };
 
 export const MAX_PROFILE_LINKS = 8;
@@ -85,6 +92,19 @@ export function parsePageExtras(raw: unknown): PageExtras {
         ...(statHint ? { statHint } : {}),
       };
     }
+  }
+
+  if (Array.isArray(o.portfolioImages)) {
+    const imgs: PortfolioImage[] = [];
+    for (const item of o.portfolioImages) {
+      if (!item || typeof item !== "object") continue;
+      const p = item as Record<string, unknown>;
+      const path = typeof p.path === "string" ? p.path.trim() : "";
+      if (!path || path.includes("..")) continue;
+      imgs.push({ path });
+      if (imgs.length >= PORTFOLIO_MAX_IMAGES) break;
+    }
+    if (imgs.length) out.portfolioImages = imgs;
   }
 
   return out;
@@ -167,7 +187,10 @@ export function mergePageExtrasForSave(
   prevRaw: unknown,
   siteKind: SiteKind,
   profileLinks: ProfileLink[],
-  waitlistPitch: WaitlistPitchExtras | undefined
+  waitlistPitch: WaitlistPitchExtras | undefined,
+  portfolioImages: PortfolioImage[] | undefined,
+  workspaceId: string,
+  pageId: string
 ): Record<string, unknown> {
   const prev = parsePageExtras(prevRaw);
   const next: PageExtras = { ...prev };
@@ -175,6 +198,25 @@ export function mergePageExtrasForSave(
     const cleaned = sanitizeProfileLinks(profileLinks);
     if (cleaned.length) next.profileLinks = cleaned;
     else delete next.profileLinks;
+
+    if (portfolioImages?.length) {
+      const seen = new Set<string>();
+      const safe: PortfolioImage[] = [];
+      for (const row of portfolioImages) {
+        const path = row.path.trim();
+        if (!path || seen.has(path)) continue;
+        if (!isPortfolioPathForPage(path, workspaceId, pageId)) continue;
+        seen.add(path);
+        safe.push({ path });
+        if (safe.length >= PORTFOLIO_MAX_IMAGES) break;
+      }
+      if (safe.length) next.portfolioImages = safe;
+      else delete next.portfolioImages;
+    } else {
+      delete next.portfolioImages;
+    }
+  } else {
+    delete next.portfolioImages;
   }
   if (siteKind === "waitlist") {
     if (waitlistPitch) next.waitlist = waitlistPitch;

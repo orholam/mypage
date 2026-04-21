@@ -13,17 +13,26 @@ import { normalizeOutboundHref } from "@/lib/href";
 import { PROFILE_PROVIDER_LABEL } from "@/components/icons/social-brand-icons";
 import { PublicPageAmbient } from "@/components/waitlist/public-page-ambient";
 import { ProfileLinksStrip } from "@/components/waitlist/profile-links-strip";
+import { PersonalPortfolioGrid } from "@/components/waitlist/personal-portfolio-grid";
 import { TemplatePageMark } from "@/components/waitlist/template-page-mark";
 import { WaitlistPitchBulletsList, WaitlistPitchPillsRow } from "@/components/waitlist/waitlist-pitch-blocks";
 import {
   MAX_PROFILE_LINKS,
   PROFILE_LINK_PROVIDERS,
+  type PortfolioImage,
   type ProfileLink,
   buildWaitlistPitchFromForm,
   mergePageExtrasForSave,
   parsePageExtras,
   textareaFromBullets,
 } from "@/lib/page-extras";
+import {
+  PORTFOLIO_BUCKET,
+  PORTFOLIO_MAX_IMAGES,
+  portfolioObjectPath,
+  portfolioPublicUrl,
+  validatePortfolioUpload,
+} from "@/lib/portfolio-storage";
 import {
   PERSONAL_TEMPLATES,
   WAITLIST_TEMPLATES,
@@ -37,9 +46,9 @@ import {
   waitlistHeadlineClass,
   waitlistSubheadClass,
 } from "@/lib/waitlist-template";
-import { Loader2, Mail, Plus, Save, Share2, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronUp, ImagePlus, Loader2, Mail, Plus, Save, Share2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export function WaitlistPageEditor({
   initialPage,
@@ -68,11 +77,26 @@ export function WaitlistPageEditor({
   const [waitlistStat, setWaitlistStat] = useState(initialExtras.waitlist?.statHint ?? "");
   const [waitlistTrust, setWaitlistTrust] = useState(initialExtras.waitlist?.trustLine ?? "");
   const [waitlistUrgency, setWaitlistUrgency] = useState(initialExtras.waitlist?.urgencyLine ?? "");
+  const [portfolioImages, setPortfolioImages] = useState<PortfolioImage[]>(
+    () => initialExtras.portfolioImages ?? []
+  );
+  const [portfolioUploading, setPortfolioUploading] = useState(false);
 
   const pageId = initialPage?.id ?? "";
+  const workspaceId = initialPage?.workspace_id ?? "";
+  const extrasSyncKey = useMemo(() => JSON.stringify(initialPage?.extras ?? null), [initialPage?.extras]);
+  const initialPortfolioPaths = useMemo(() => {
+    return new Set(parsePageExtras(initialPage?.extras).portfolioImages?.map((p) => p.path) ?? []);
+  }, [initialPage?.id, extrasSyncKey]);
+
+  const portfolioFileRef = useRef<HTMLInputElement>(null);
   const [saving, setSaving] = useState(false);
   const [hint, setHint] = useState<string | null>(null);
   const [letter, setLetter] = useState("A");
+
+  useEffect(() => {
+    setPortfolioImages(parsePageExtras(initialPage?.extras).portfolioImages ?? []);
+  }, [initialPage?.id, extrasSyncKey]);
 
   const previewExtras = useMemo(() => {
     const w = buildWaitlistPitchFromForm({
@@ -126,7 +150,15 @@ export function WaitlistPageEditor({
       trustLine: waitlistTrust,
       urgencyLine: waitlistUrgency,
     });
-    const extras = mergePageExtrasForSave(initialPage?.extras, siteKind, profileLinks, waitlistPitch);
+    const extras = mergePageExtrasForSave(
+      initialPage?.extras,
+      siteKind,
+      profileLinks,
+      waitlistPitch,
+      siteKind === "personal" ? portfolioImages : undefined,
+      workspaceId,
+      pageId
+    );
     const { error } = await supabase
       .from("waitlist_pages")
       .update({
@@ -143,6 +175,19 @@ export function WaitlistPageEditor({
     if (error) {
       setHint(error.message);
       return;
+    }
+    if (siteKind === "personal") {
+      const prevPaths = parsePageExtras(initialPage?.extras).portfolioImages?.map((p) => p.path) ?? [];
+      const nextSet = new Set(portfolioImages.map((p) => p.path));
+      const removed = prevPaths.filter((p) => !nextSet.has(p));
+      if (removed.length) {
+        const { error: rmErr } = await supabase.storage.from(PORTFOLIO_BUCKET).remove(removed);
+        if (rmErr) {
+          setHint(`Saved. Could not remove old files: ${rmErr.message}`);
+          router.refresh();
+          return;
+        }
+      }
     }
     setHint("Saved.");
     router.refresh();
@@ -179,6 +224,59 @@ export function WaitlistPageEditor({
 
   function removeProfileLink(index: number) {
     setProfileLinks((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function onPortfolioFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    const msg = validatePortfolioUpload(file);
+    if (msg) {
+      setHint(msg);
+      return;
+    }
+    if (!pageId || !workspaceId) return;
+    if (portfolioImages.length >= PORTFOLIO_MAX_IMAGES) return;
+    const path = portfolioObjectPath(workspaceId, pageId, file.type);
+    if (!path) {
+      setHint("Unsupported image type.");
+      return;
+    }
+    setPortfolioUploading(true);
+    setHint(null);
+    const supabase = createClient();
+    const { error } = await supabase.storage.from(PORTFOLIO_BUCKET).upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    setPortfolioUploading(false);
+    if (error) {
+      setHint(error.message);
+      return;
+    }
+    setPortfolioImages((prev) => [...prev, { path }]);
+  }
+
+  function removePortfolioAt(index: number) {
+    const path = portfolioImages[index]?.path;
+    if (path && !initialPortfolioPaths.has(path)) {
+      const supabase = createClient();
+      void supabase.storage.from(PORTFOLIO_BUCKET).remove([path]);
+    }
+    setPortfolioImages((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function movePortfolio(index: number, delta: -1 | 1) {
+    setPortfolioImages((prev) => {
+      const j = index + delta;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      const a = next[index]!;
+      const b = next[j]!;
+      next[index] = b;
+      next[j] = a;
+      return next;
+    });
   }
 
   return (
@@ -326,6 +424,7 @@ export function WaitlistPageEditor({
             </section>
 
             {siteKind === "personal" ? (
+              <>
               <section>
                 <p className="font-mono-technical text-muted-foreground mb-1 text-[10px] font-semibold uppercase tracking-widest">
                   Presence
@@ -390,6 +489,96 @@ export function WaitlistPageEditor({
                   </Button>
                 </div>
               </section>
+
+              <section>
+                <p className="font-mono-technical text-muted-foreground mb-1 text-[10px] font-semibold uppercase tracking-widest">
+                  Portfolio
+                </p>
+                <h2 className="text-foreground mb-1 text-sm font-semibold">Pictures</h2>
+                <p className="text-muted-foreground mb-4 text-xs leading-relaxed">
+                  A small grid of work or life shots on your public page. JPEG, PNG, WebP, or GIF — up to 5 MB each.
+                </p>
+                <input
+                  ref={portfolioFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  onChange={(e) => void onPortfolioFileChange(e)}
+                />
+                <div className="space-y-3">
+                  {portfolioImages.map((row, index) => (
+                    <div
+                      key={row.path}
+                      className="border-border bg-card/60 flex items-center gap-2 rounded-xl border p-2"
+                    >
+                      <div className="bg-muted relative size-14 shrink-0 overflow-hidden rounded-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={portfolioPublicUrl(row.path)}
+                          alt=""
+                          className="size-full object-cover"
+                        />
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="text-muted-foreground truncate font-mono text-[10px]">{row.path.split("/").pop()}</span>
+                        <div className="flex flex-wrap gap-1">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-8"
+                            disabled={index === 0}
+                            onClick={() => movePortfolio(index, -1)}
+                            aria-label="Move image up"
+                          >
+                            <ChevronUp className="size-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-8"
+                            disabled={index === portfolioImages.length - 1}
+                            onClick={() => movePortfolio(index, 1)}
+                            aria-label="Move image down"
+                          >
+                            <ChevronDown className="size-4" />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="size-8 text-destructive hover:text-destructive"
+                            onClick={() => removePortfolioAt(index)}
+                            aria-label="Remove image"
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="warmOutline"
+                    size="sm"
+                    className="w-full gap-2"
+                    onClick={() => portfolioFileRef.current?.click()}
+                    disabled={portfolioImages.length >= PORTFOLIO_MAX_IMAGES || portfolioUploading || !workspaceId}
+                  >
+                    {portfolioUploading ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <ImagePlus className="size-4" />
+                    )}
+                    Add image
+                    <span className="text-muted-foreground text-xs font-normal">
+                      ({portfolioImages.length}/{PORTFOLIO_MAX_IMAGES})
+                    </span>
+                  </Button>
+                </div>
+              </section>
+              </>
             ) : (
               <section>
                 <p className="font-mono-technical text-muted-foreground mb-1 text-[10px] font-semibold uppercase tracking-widest">
@@ -482,6 +671,12 @@ export function WaitlistPageEditor({
             {siteKind === "personal" ? (
               <>
                 <ProfileLinksStrip links={profileLinks} templateId={templateId} className="mt-8" />
+                <PersonalPortfolioGrid
+                  images={portfolioImages}
+                  templateId={templateId}
+                  headlineForAlt={headline.trim() || "Your name"}
+                  interactive={false}
+                />
                 <div className="mt-8 flex flex-col items-center gap-3">
                   {ctaLabel.trim() && normalizeOutboundHref(ctaUrl) ? (
                     <span

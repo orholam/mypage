@@ -5,6 +5,7 @@ import { normalizeOutboundHref } from "@/lib/href";
 import { parsePageExtras } from "@/lib/page-extras";
 import { PublicPageAmbient } from "@/components/waitlist/public-page-ambient";
 import { ProfileLinksStrip } from "@/components/waitlist/profile-links-strip";
+import { PersonalPortfolioGrid } from "@/components/waitlist/personal-portfolio-grid";
 import { TemplatePageMark } from "@/components/waitlist/template-page-mark";
 import { WaitlistPitchBulletsList, WaitlistPitchPillsRow } from "@/components/waitlist/waitlist-pitch-blocks";
 import {
@@ -108,7 +109,15 @@ export function DashboardPagePreview({ page, siteKind, liveHref }: DashboardPage
             </p>
 
             {siteKind === "personal" ? (
-              <ProfileLinksStrip links={profileLinks} templateId={page.template_id} className="mt-6" />
+              <>
+                <ProfileLinksStrip links={profileLinks} templateId={page.template_id} className="mt-6" />
+                <PersonalPortfolioGrid
+                  images={extras.portfolioImages ?? []}
+                  templateId={page.template_id}
+                  headlineForAlt={headline}
+                  interactive={false}
+                />
+              </>
             ) : (
               <WaitlistPitchBulletsList pitch={extras.waitlist} templateId={page.template_id} className="mt-5" />
             )}

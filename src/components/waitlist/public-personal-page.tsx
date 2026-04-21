@@ -7,6 +7,7 @@ import { ProfileLinksStrip } from "@/components/waitlist/profile-links-strip";
 import { PublicPageShell } from "@/components/waitlist/public-page-ambient";
 import { normalizeOutboundHref } from "@/lib/href";
 import { parsePageExtras } from "@/lib/page-extras";
+import { PersonalPortfolioGrid } from "@/components/waitlist/personal-portfolio-grid";
 import { TemplatePageMark } from "@/components/waitlist/template-page-mark";
 import {
   pageSurfaceClass,
@@ -26,8 +27,11 @@ export function PublicPersonalPage({ page }: { page: PublicPageRow }) {
   const headingClass = personalHeadingClass(tid);
   const subClass = personalSubheadClass(tid);
   const ctaExtra = personalCtaClass(tid);
-  const profileLinks = parsePageExtras(page.extras).profileLinks ?? [];
+  const extras = parsePageExtras(page.extras);
+  const profileLinks = extras.profileLinks ?? [];
+  const portfolioImages = extras.portfolioImages ?? [];
   const isMail = href.startsWith("mailto:");
+  const nameForAlt = page.headline?.trim() || "Portfolio";
 
   return (
     <PublicPageShell kind="personal" templateId={tid}>
@@ -40,6 +44,12 @@ export function PublicPersonalPage({ page }: { page: PublicPageRow }) {
         <p className={cn("mt-4 text-center", subClass)}>{page.subheadline}</p>
 
         <ProfileLinksStrip links={profileLinks} templateId={tid} className="mt-8" />
+
+        <PersonalPortfolioGrid
+          images={portfolioImages}
+          templateId={tid}
+          headlineForAlt={nameForAlt}
+        />
 
         {showCta ? (
           <div className="mt-8 flex justify-center sm:mt-10">
