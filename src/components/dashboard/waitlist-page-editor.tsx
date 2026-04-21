@@ -637,7 +637,7 @@ export function WaitlistPageEditor({
 
         <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden lg:min-h-0">
           <PublicPageAmbient kind={siteKind} templateId={templateId} />
-          <div className="relative z-10 flex min-h-[360px] flex-1 items-center justify-center overflow-y-auto p-6 sm:p-8">
+          <div className="relative z-10 flex min-h-[360px] flex-1 items-center justify-center overflow-y-auto px-8 py-6 sm:px-12 sm:py-8">
             <div className={cn("w-full max-w-md p-8 sm:p-10", previewCard)}>
             <div className="mb-6 flex flex-col items-center gap-4">
               {accent ? <div className={accent} aria-hidden /> : null}
@@ -676,6 +676,7 @@ export function WaitlistPageEditor({
                   templateId={templateId}
                   headlineForAlt={headline.trim() || "Your name"}
                   interactive={false}
+                  layout="preview"
                 />
                 <div className="mt-8 flex flex-col items-center gap-3">
                   {ctaLabel.trim() && normalizeOutboundHref(ctaUrl) ? (

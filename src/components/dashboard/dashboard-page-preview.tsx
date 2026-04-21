@@ -58,8 +58,15 @@ export function DashboardPagePreview({ page, siteKind, liveHref }: DashboardPage
   const waitlistChrome = siteKind === "waitlist" ? waitlistFieldChrome(page.template_id) : null;
   const profileLinks = extras.profileLinks ?? [];
 
+  const clipPreview = siteKind !== "personal";
+
   return (
-    <div className="border-border relative overflow-hidden rounded-2xl border border-border bg-card shadow-md">
+    <div
+      className={cn(
+        "border-border relative rounded-2xl border border-border bg-card shadow-md",
+        clipPreview ? "overflow-hidden" : "overflow-visible"
+      )}
+    >
       {liveHref ? (
         <div className="absolute right-3 top-3 z-20 sm:right-4 sm:top-4">
           <Link
@@ -77,7 +84,12 @@ export function DashboardPagePreview({ page, siteKind, liveHref }: DashboardPage
           </Link>
         </div>
       ) : null}
-      <div className="relative min-h-[400px] overflow-hidden sm:min-h-[440px]">
+      <div
+        className={cn(
+          "relative min-h-[400px] sm:min-h-[440px]",
+          clipPreview ? "overflow-hidden" : "overflow-visible"
+        )}
+      >
         <PublicPageAmbient kind={siteKind} templateId={page.template_id} />
         <div className="relative z-[1] flex min-h-[400px] items-center justify-center p-6 sm:min-h-[440px] sm:p-10">
         <section aria-label="Read-only preview of your public page" className="pointer-events-none w-full max-w-md select-none">
@@ -116,6 +128,7 @@ export function DashboardPagePreview({ page, siteKind, liveHref }: DashboardPage
                   templateId={page.template_id}
                   headlineForAlt={headline}
                   interactive={false}
+                  layout="preview"
                 />
               </>
             ) : (

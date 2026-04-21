@@ -102,33 +102,33 @@ export function pageSurfaceClass(kind: SiteKind, storedTemplateId: string | unde
     switch (id) {
       case "p_spotlight":
         return cn(
-          "relative overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/70 text-zinc-50 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl",
+          "relative overflow-visible rounded-2xl border border-white/10 bg-zinc-950/70 text-zinc-50 shadow-[0_24px_80px_-20px_rgba(0,0,0,0.65)] backdrop-blur-xl",
           "ring-1 ring-white/[0.12] [box-shadow:inset_0_1px_0_0_rgba(255,255,255,0.06)]"
         );
       case "p_linktree":
         return cn(
-          "relative overflow-hidden rounded-[1.75rem] border border-white/60 bg-white/80 text-neutral-900 backdrop-blur-2xl",
+          "relative overflow-visible rounded-[1.75rem] border border-white/60 bg-white/80 text-neutral-900 backdrop-blur-2xl",
           "shadow-[0_2px_0_rgba(0,0,0,0.04),0_28px_56px_-24px_rgba(0,0,0,0.22)] ring-1 ring-black/[0.04]"
         );
       case "p_studio":
         return cn(
-          "relative overflow-hidden rounded-2xl border border-white/70 bg-white/75 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(15,23,42,0.18)] backdrop-blur-xl",
+          "relative overflow-visible rounded-2xl border border-white/70 bg-white/75 text-neutral-900 shadow-[0_20px_50px_-20px_rgba(15,23,42,0.18)] backdrop-blur-xl",
           "ring-1 ring-neutral-200/80"
         );
       case "p_aurora":
         return cn(
-          "relative overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.15] via-white/[0.08] to-transparent text-white",
+          "relative overflow-visible rounded-2xl border border-white/20 bg-gradient-to-br from-white/[0.15] via-white/[0.08] to-transparent text-white",
           "shadow-[0_25px_70px_-20px_rgba(88,28,135,0.55)] backdrop-blur-md ring-1 ring-white/25"
         );
       case "p_mono":
         return cn(
-          "relative overflow-hidden rounded-2xl border border-emerald-500/35 bg-zinc-950/90 font-mono text-emerald-50 shadow-[0_0_45px_-8px_rgba(16,185,129,0.35)]",
+          "relative overflow-visible rounded-2xl border border-emerald-500/35 bg-zinc-950/90 font-mono text-emerald-50 shadow-[0_0_45px_-8px_rgba(16,185,129,0.35)]",
           "backdrop-blur-sm ring-1 ring-emerald-500/20 [box-shadow:inset_0_1px_0_0_rgba(16,185,129,0.12)]"
         );
       case "p_editorial":
       default:
         return cn(
-          "organic-noise relative overflow-hidden rounded-2xl border border-amber-200/80 bg-gradient-to-b from-amber-50/98 to-stone-100/95 text-stone-900",
+          "organic-noise relative overflow-visible rounded-2xl border border-amber-200/80 bg-gradient-to-b from-amber-50/98 to-stone-100/95 text-stone-900",
           "shadow-[0_24px_60px_-18px_rgba(120,53,15,0.18)] ring-1 ring-amber-300/40"
         );
     }
